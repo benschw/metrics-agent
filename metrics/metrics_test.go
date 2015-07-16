@@ -64,18 +64,25 @@ func (s *TestSuite) TestGauge(c *C) {
 }
 
 func (s *TestSuite) TestHistogram(c *C) {
+
+	expected := map[string]int64{
+		"foo.P50":  5,
+		"foo.P75":  5,
+		"foo.P90":  15,
+		"foo.P95":  15,
+		"foo.P99":  15,
+		"foo.P999": 15,
+	}
+
 	h := metrics.NewHistogram("foo", 0, 100, 4)
 
 	h.RecordValue(1)
 	h.RecordValue(5)
 	h.RecordValue(5)
-	h.RecordValue(5)
-	h.RecordValue(600)
-	h.RecordValue(30)
+	h.RecordValue(15)
 
-	ctr, g := metrics.Snapshot()
-	log.Printf("c: %+v", ctr)
+	_, g := metrics.Snapshot()
 	log.Printf("g: %+v", g)
 
-	c.Assert(true, Equals, nil)
+	c.Assert(g, DeepEquals, expected)
 }
