@@ -1,6 +1,6 @@
 package api
 
 type Counter struct {
-	Name string
-	N    uint64
+	Name string `json:"name"`
+	N    uint64 `json:"n"`
 }

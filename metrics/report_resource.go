@@ -13,9 +13,9 @@ type ReportResource struct {
 }
 
 func (r *ReportResource) GetAll(res http.ResponseWriter, req *http.Request) {
-	counters, _ := metrics.Snapshot()
+	c, g := metrics.Snapshot()
 
-	if err := rest.SetOKResponse(res, counters); err != nil {
+	if err := rest.SetOKResponse(res, api.Report{Counters: c, Gauges: g}); err != nil {
 		rest.SetInternalServerErrorResponse(res, err)
 		return
 	}
@@ -33,6 +33,23 @@ func (r *ReportResource) Counter(res http.ResponseWriter, req *http.Request) {
 	metrics.Counter(ctr.Name).AddN(ctr.N)
 
 	if err := rest.SetOKResponse(res, ctr); err != nil {
+		rest.SetInternalServerErrorResponse(res, err)
+		return
+	}
+}
+
+func (r *ReportResource) Gauge(res http.ResponseWriter, req *http.Request) {
+	var g api.Gauge
+
+	if err := rest.Bind(req, &g); err != nil {
+		log.Print(err)
+		rest.SetBadRequestResponse(res)
+		return
+	}
+
+	metrics.Gauge(g.Name).Set(g.N)
+
+	if err := rest.SetOKResponse(res, g); err != nil {
 		rest.SetInternalServerErrorResponse(res, err)
 		return
 	}

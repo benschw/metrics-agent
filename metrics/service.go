@@ -38,6 +38,7 @@ func (s *MetricsService) Run() error {
 	r := mux.NewRouter()
 	r.HandleFunc("/report", report.GetAll).Methods("GET")
 	r.HandleFunc("/counter", report.Counter).Methods("POST")
+	r.HandleFunc("/gauge", report.Gauge).Methods("POST")
 
 	http.Handle("/", r)
 
